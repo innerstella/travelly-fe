@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 export interface SheetSliceState {
   sheet: {
     value: {
+      name?: string
       status: boolean
       text: string
     }
@@ -16,7 +17,8 @@ export const sheetSlice = createSlice({
     sheet: (state, action) => {
       state.value = action.payload
     },
+    reset: () => {},
   },
 })
 
-export const { sheet } = sheetSlice.actions
+export const { sheet, reset } = sheetSlice.actions
