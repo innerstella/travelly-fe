@@ -1,12 +1,13 @@
 import edit from '@/assets/products-detail/edit.svg'
 import sort from '@/assets/products-detail/sort.svg'
-import { useNavigate } from 'react-router-dom'
-import * as S from './Review.style'
-import ReviewPage from './ReviewPage'
-
 import { RootState } from '@/store/store'
+
 import { useSelector } from 'react-redux'
-import type { IReviewData, IReviewProps } from './Review.type'
+import { useNavigate } from 'react-router-dom'
+
+import * as S from './Review.style'
+
+import type { IReviewProps } from './Review.type'
 
 const Review: React.FC<IReviewProps> = ({
   reviewCnt,
@@ -77,13 +78,14 @@ const Review: React.FC<IReviewProps> = ({
           </S.ReviewImgContainer>
         )}
       </S.ReviewHeader>
-      {reviewData.map((data: IReviewData) => (
+      {/* TODO: 상품 상세 조회에서 리뷰 보내주는 API 완성되면 연결 */}
+      {/* {reviewData.map((data: IReviewDetailData) => (
         <ReviewPage
-          key={data.name}
+          key={data.productId}
           reviewData={data}
           onEditClick={onEditClick}
         />
-      ))}
+      ))} */}
     </S.ReviewContainer>
   )
 }

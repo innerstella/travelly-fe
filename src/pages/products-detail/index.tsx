@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { getProductDetail, getSearchProducts } from '@/api/productsAPI'
+import { getAllProducts, getProductDetail } from '@/api/productsAPI'
 import { LOCALE_CODE_LIST } from '@/constants/FILTERING_BROWSING'
 import PhotoReviewsSheet from '@/pages/products-detail/components/photo-reviews-sheet'
 import { setProductDetail } from '@/store/product-slice/product-slice'
@@ -8,6 +8,7 @@ import { sheet } from '@/store/sheet-slice/sheet-slice'
 import type { ISheetSliceState } from '@/store/sheet-slice/sheet-slice.type'
 import { RootState } from '@/store/store'
 
+import FooterReservation from '@components/footer-reservation'
 import { IProductCardData } from '@components/product-card/ProductCard.type'
 import ProductHeader from '@components/product-header'
 import { useQuery } from '@tanstack/react-query'
@@ -16,10 +17,8 @@ import { useParams } from 'react-router-dom'
 
 import BasicInfo from './components/basic-info'
 import Description from './components/description'
-import Footer from './components/footer'
 import Info from './components/info'
 import RecommendCard from './components/recommend-card'
-import Review from './components/review'
 import SheetRenderer from './components/sheet-renderer'
 import { reviewData as const_review_data, mockCard } from './mockData'
 import * as S from './ProductsDetail.style'
@@ -64,7 +63,7 @@ function ProductsDetail() {
   }
   const { data: recommendProductQuery } = useQuery({
     queryKey: ['recommend-products'],
-    queryFn: () => getSearchProducts(recommendQueryData),
+    queryFn: () => getAllProducts(recommendQueryData),
     enabled: isProductDetailSuccess,
   })
   const recommendProductData = recommendProductQuery?.data.content.filter(
@@ -82,6 +81,7 @@ function ProductsDetail() {
     sheetReducer.status && sheetReducer.name === 'search-sheet'
   const isPhotoReviewsSheet =
     sheetReducer.status && sheetReducer.name === 'photo-reviews-sheet'
+
   const [isHamburgerClicked, setIsHamburgerClicked] = useState(false)
 
   const handleSheetDispatch = useCallback(
@@ -104,14 +104,14 @@ function ProductsDetail() {
   if (isPhotoReviewsSheet) return <PhotoReviewsSheet reviewImg={reviewImg} />
 
   const shareSheetProps = {
-    address: address,
-    addressTitle: detailAddress,
-    title: name,
-    description: description,
+    address: address || '',
+    addressTitle: detailAddress || '',
+    title: name || '',
+    description: description || '',
     imageUrl:
       'https://img8.yna.co.kr/etc/inner/KR/2018/01/17/AKR20180117116400007_02_i_P4.jpg',
-    commentCount: reviewCount,
-  }
+    commentCount: reviewCount || 0,
+  } as const
 
   return (
     <>
@@ -143,7 +143,8 @@ function ProductsDetail() {
             recommendProductData?.length > 0 ? recommendProductData : mockCard
           }
         />
-        <Review
+        {/* TODO: 상품 상세 조회에서 리뷰 데이터 받아와서 교체ㄴ */}
+        {/* <Review
           reviewCnt={reviewCount}
           reviewImg={reviewImg}
           reviewData={const_review_data}
@@ -151,11 +152,15 @@ function ProductsDetail() {
           onEditClick={() => handleSheetDispatch('edit-sheet')}
           onPhotoReviewsClick={handlePhotoReviewsClick}
         />
-        <Footer
+        <FooterReservation
+        /> */}
+        <FooterReservation
           isBookmarked={true}
           isReservationProduct={true}
           discount={0}
           price={price}
+          buttontype="reservation"
+          productId={productId}
         />
         <SheetRenderer shareSheetProps={shareSheetProps} />
       </S.PageContainer>

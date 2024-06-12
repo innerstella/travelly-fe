@@ -1,4 +1,4 @@
-import { IGetProductResponse } from '@/types/getProductData.type'
+import { IGetReviewDetailResponse } from '@/types/getReviewDetailData.type'
 
 import { useQuery } from '@tanstack/react-query'
 
@@ -9,9 +9,9 @@ import { useQuery } from '@tanstack/react-query'
  * @param {Function} queryFn 데이터 패치 함수, Promise 반환.
  */
 
-function useGetAllProducts(
+export default function useGetReviewDetail(
   queryKey: string,
-  queryFn: () => Promise<IGetProductResponse>,
+  queryFn: () => Promise<IGetReviewDetailResponse>,
 ) {
   return useQuery({
     queryKey: [queryKey],
@@ -21,5 +21,3 @@ function useGetAllProducts(
     },
   })
 }
-
-export default useGetAllProducts
