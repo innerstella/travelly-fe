@@ -13,21 +13,21 @@ function ProductInfo({
     address = '',
     cityCode = '',
     rating = 0,
-    reviews = [],
+    reviewCount = 0,
     images = [],
   } = productDetail || {}
 
   const city = LOCALE_CODE_LIST[cityCode]
   const district = address?.split(' ')[1]
   const imageArray = images?.map((item: { url: string }) => item.url) || []
-  const reviewCount = Array.isArray(reviews) ? reviews.length : 0
+  const formattedRating = +rating.toFixed(1)
 
   return (
     <Info
       productName={name}
       sellingDate={operationDays}
       address={`${city} ${district}`}
-      rating={rating}
+      rating={formattedRating}
       reviewCnt={reviewCount}
       imageArray={imageArray}
       onShareClick={() => handleSheetDispatch('share-sheet')}

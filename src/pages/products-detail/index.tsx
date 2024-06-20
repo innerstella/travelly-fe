@@ -1,8 +1,8 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import useProductDetail from '@/hooks/api/productsAPI/useProductDetail'
 import useRecommendProducts from '@/hooks/api/productsAPI/useRecommendProducts'
-import PhotoReviewsSheet from '@/pages/products-detail/components/photo-reviews-sheet'
+import useLoadMoreReviews from '@/hooks/api/reviewAPI/useLoadMoreReviews'
 import { sheet } from '@/store/sheet-slice/sheet-slice'
 import type { ISheetSliceState } from '@/store/sheet-slice/sheet-slice.type'
 import { IReviewDetailData } from '@/types/getReviewDetailData.type'
@@ -14,6 +14,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 
 import Description from './components/description'
+import LoadMoreButton from './components/load-more-button'
+import PhotoReviewsSheet from './components/photo-reviews-sheet'
 import ProductBasicInfo from './components/product-basic-info'
 import ProductInfo from './components/product-info'
 import ProductReviews from './components/product-review'
@@ -27,7 +29,12 @@ function ProductsDetail() {
   const dispatch = useDispatch()
   const { productDetail, isProductDetailSuccess, isLoading } =
     useProductDetail(productId)
-  const [isHamburgerClicked, setIsHamburgerClicked] = useState(false)
+  const { reviews, totalElements, handleLoadMoreReviews, initializeReviews } =
+    useLoadMoreReviews(productId)
+
+  useEffect(() => {
+    initializeReviews()
+  }, [productId, initializeReviews])
 
   const {
     address = '',
@@ -36,8 +43,8 @@ function ProductsDetail() {
     name = '',
     description = '',
     reviewCount = 0,
+    images = [],
     ticketDto = [],
-    reviews = [],
   } = productDetail || {}
 
   const recommendProducts = useRecommendProducts({
@@ -76,17 +83,14 @@ function ProductsDetail() {
 
   const price = ticketDto[0]?.price
 
-  const reviewData = changeReviewData(
-    reviews as IReviewDetailData[],
-    productId,
-    name,
-    price,
-  )
-
+  const reviewData = reviews
+    ? changeReviewData(reviews as IReviewDetailData[], productId, name, price)
+    : []
   const reviewImg = reviewData.reduce<string[]>(
     (acc: string[], review) => acc.concat(review.reviewImages),
     [],
   )
+  const remainingReviews = Math.max(totalElements - reviews.length, 0)
 
   if (isPhotoReviewsSheet) return <PhotoReviewsSheet reviewImg={reviewImg} />
 
@@ -95,16 +99,13 @@ function ProductsDetail() {
     addressTitle: detailAddress || '',
     title: name || '',
     description: description || '',
-    imageUrl:
-      'https://img8.yna.co.kr/etc/inner/KR/2018/01/17/AKR20180117116400007_02_i_P4.jpg',
+    imageUrl: images[0]?.url,
     commentCount: reviewCount || 0,
-  } as const
+  }
 
   return (
     <>
-      <ProductHeader
-        hamburgerClick={() => setIsHamburgerClicked(!isHamburgerClicked)}
-      />
+      <ProductHeader />
       <S.PageContainer
         $isSearchSheet={isSearchSheet}
         $isPhotoReviewsSheet={isPhotoReviewsSheet}
@@ -114,14 +115,22 @@ function ProductsDetail() {
           handleSheetDispatch={handleSheetDispatch}
         />
         <ProductBasicInfo productDetail={productDetail} />
-        <Description />
+        <Description description={description} />
         <RecommendCard cards={recommendProducts} />
 
         <ProductReviews
+          productDetail={productDetail}
           reviewData={reviewData}
+          totalElements={totalElements}
           handleSheetDispatch={handleSheetDispatch}
           handlePhotoReviewsClick={handlePhotoReviewsClick}
         />
+        {remainingReviews !== 0 && (
+          <LoadMoreButton
+            onClick={handleLoadMoreReviews}
+            remainingReviews={remainingReviews}
+          />
+        )}
         <FooterReservation
           isBookmarked={true}
           isReservationProduct={true}

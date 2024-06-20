@@ -1,14 +1,20 @@
 import Review from '@/pages/products-detail/components/product-review/review'
 import { IReviewDetailData } from '@/types/getReviewDetailData.type'
 
+import { IProductDetail } from './review/Review.type'
+
 interface IProductReviewsProps {
+  productDetail: IProductDetail
   reviewData: IReviewDetailData[]
   handleSheetDispatch: (name: string) => void
   handlePhotoReviewsClick: () => void
+  totalElements: number
 }
 
 const ProductReviews = ({
+  productDetail,
   reviewData,
+  totalElements,
   handleSheetDispatch,
   handlePhotoReviewsClick,
 }: IProductReviewsProps) => {
@@ -19,7 +25,8 @@ const ProductReviews = ({
 
   return (
     <Review
-      reviewCnt={reviewData?.length}
+      productDetail={productDetail}
+      reviewCnt={totalElements}
       reviewImg={reviewImg}
       reviewData={reviewData}
       onOrderClick={() => handleSheetDispatch('review-order-sheet')}

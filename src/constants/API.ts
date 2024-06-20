@@ -4,6 +4,7 @@ export const API_PRODUCTS = Object.freeze({
   PRODUCTS: '/products/',
   PRODUCTS_IMAGE: '/products/upload',
   PRODUCTS_DETAIL: (productId: number | undefined) => `/products/${productId}`,
+  TOP_KEYWORDS: '/products/top-keywords',
 })
 
 export const API_MEMBER = Object.freeze({
@@ -32,4 +33,5 @@ export const API_REVIEW = Object.freeze({
     `/review/${productId}/${reviewId}`,
   COMMENT: (reviewId: number, commentId: number) =>
     `/comment/${reviewId}/${commentId}`,
+  REVIEWS: (productId: number) => `/review/product/${productId}`,
 })

@@ -2,12 +2,11 @@ import { useState } from 'react'
 
 import edit from '@/assets/products-detail/edit.svg'
 import sort from '@/assets/products-detail/sort.svg'
+import ReviewImages from '@/pages/products-detail/components/product-review/review/ReviewImages'
 import ReviewPage from '@/pages/products-detail/components/product-review/review/ReviewPage.tsx'
-import { RootState } from '@/store/store'
 import { IReviewDetailData } from '@/types/getReviewDetailData.type.ts'
 
 import CheckBox from '@components/check-box'
-import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 
 import * as S from './Review.style'
@@ -15,6 +14,7 @@ import * as S from './Review.style'
 import type { IReviewProps } from './Review.type'
 
 const Review: React.FC<IReviewProps> = ({
+  productDetail,
   reviewCnt,
   reviewImg,
   reviewData,
@@ -29,13 +29,10 @@ const Review: React.FC<IReviewProps> = ({
     setIsRecentVisitChecked(isChecked)
   }
 
-  const productDetail = useSelector((state: RootState) => state.product.detail)
-
-  const reviewImgCnt = reviewImg?.length || 0
   const navigate = useNavigate()
 
   const handleHeaderClick = () => {
-    navigate('/review/list')
+    navigate('/review/list'), { state: { productDetail } }
   }
 
   const handleIconClick = (event: React.MouseEvent) => {
@@ -73,24 +70,13 @@ const Review: React.FC<IReviewProps> = ({
             <S.IconSort src={sort} alt="정렬" />
           </S.SortWrapper>
         </S.ReviewCheckBox>
-        {reviewImgCnt > 0 ? (
+        {reviewCnt > 0 ? (
           <S.ReviewImgContainer>
-            {reviewImgCnt <= 3 ? (
-              reviewImg?.map((photo) => (
-                <S.ReviewImg key={photo} src={photo} alt="리뷰 이미지" />
-              ))
-            ) : (
-              <>
-                <S.ReviewImg src={reviewImg?.[0]} alt="리뷰 이미지" />
-                <S.ReviewImg src={reviewImg?.[1]} alt="리뷰 이미지" />
-                <S.LastReviewImg onClick={onPhotoReviewsClick}>
-                  <S.ReviewImg src={reviewImg?.[2]} alt="리뷰 이미지" />
-                  <S.ReviewImgBackground>
-                    +{reviewImgCnt - 2}
-                  </S.ReviewImgBackground>
-                </S.LastReviewImg>
-              </>
-            )}
+            <ReviewImages
+              reviewCnt={reviewCnt}
+              reviewImg={reviewImg}
+              onPhotoReviewsClick={onPhotoReviewsClick}
+            />
           </S.ReviewImgContainer>
         ) : (
           <S.GrayText>아직 리뷰가 없습니다.</S.GrayText>
