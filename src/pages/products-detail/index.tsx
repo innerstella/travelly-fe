@@ -1,8 +1,9 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useState } from 'react'
 
 import useProductDetail from '@/hooks/api/productsAPI/useProductDetail'
 import useRecommendProducts from '@/hooks/api/productsAPI/useRecommendProducts'
 import useLoadMoreReviews from '@/hooks/api/reviewAPI/useLoadMoreReviews'
+import NoProductPage from '@/pages/error/NoProductPage'
 import { sheet } from '@/store/sheet-slice/sheet-slice'
 import type { ISheetSliceState } from '@/store/sheet-slice/sheet-slice.type'
 import { IReviewDetailData } from '@/types/getReviewDetailData.type'
@@ -27,14 +28,13 @@ import * as S from './ProductsDetail.style'
 function ProductsDetail() {
   const { productId } = useParams<{ productId: string }>()
   const dispatch = useDispatch()
-  const { productDetail, isProductDetailSuccess, isLoading } =
+  const { productDetail, isProductDetailSuccess, isPending } =
     useProductDetail(productId)
-  const { reviews, totalElements, handleLoadMoreReviews, initializeReviews } =
-    useLoadMoreReviews(productId)
-
-  useEffect(() => {
-    initializeReviews()
-  }, [productId, initializeReviews])
+  const [sort, setSort] = useState<string>('new')
+  const { reviews, totalElements, handleLoadMoreReviews } = useLoadMoreReviews({
+    productId,
+    sort,
+  })
 
   const {
     address = '',
@@ -69,16 +69,21 @@ function ProductsDetail() {
     [dispatch],
   )
 
+  const handleSort = (order: string) => {
+    setSort(order)
+    dispatch(sheet({ name: '', status: false, text: '' }))
+  }
+
   const handlePhotoReviewsClick = useCallback(() => {
     dispatch(sheet({ name: 'photo-reviews-sheet', status: true, text: '' }))
   }, [dispatch])
 
-  if (isLoading) {
+  if (isPending) {
     return <LoadingSpinner />
   }
 
   if (!productDetail || !productId) {
-    return null
+    return <NoProductPage />
   }
 
   const price = ticketDto[0]?.price
@@ -117,7 +122,6 @@ function ProductsDetail() {
         <ProductBasicInfo productDetail={productDetail} />
         <Description description={description} />
         <RecommendCard cards={recommendProducts} />
-
         <ProductReviews
           productDetail={productDetail}
           reviewData={reviewData}
@@ -138,7 +142,10 @@ function ProductsDetail() {
           buttontype="reservation"
           productId={productId}
         />
-        <SheetRenderer shareSheetProps={shareSheetProps} />
+        <SheetRenderer
+          shareSheetProps={shareSheetProps}
+          reviewOrderSheetProps={{ handleSort }}
+        />
       </S.PageContainer>
     </>
   )
